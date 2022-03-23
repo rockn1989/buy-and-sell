@@ -1,0 +1,25 @@
+{
+  "name": "buy-and-sell",
+  "version": "1.0.0",
+  "description": "* Студент: [Артем Рябков](https://up.htmlacademy.ru/nodejs/3/user/72912). * Наставник: `Неизвестно`.",
+  "main": "./src/service/service.js",
+  "scripts": {
+    "test": "npm run eslint",
+    "eslint": "eslint --ext .js src/",
+    "start": "node ./src/service/service.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rockn1989/buy-and-sell.git"
+  },
+  "author": "Ryabkov A",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rockn1989/buy-and-sell/issues"
+  },
+  "homepage": "https://github.com/rockn1989/buy-and-sell#readme",
+  "devDependencies": {
+    "eslint": "8.11.0",
+    "eslint-config-htmlacademy": "0.6.0"
+  }
+}
