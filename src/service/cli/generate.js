@@ -1,5 +1,6 @@
 'use strict';
 const fs = require(`fs/promises`);
+const chalk = require(`chalk`);
 
 const {getRandomInt, shuffle, getRandomPictureName} = require(`../../utils`);
 const {
@@ -37,7 +38,7 @@ module.exports = {
     const count = parseInt(argv, 10) || MIN_POST;
 
     if (count > MAX_POST) {
-      console.error(`Не более 1000 объявлений`);
+      console.error(chalk.red(`Не более 1000 объявлений`));
       process.exit(ExitCode.ERROR);
     }
 
@@ -49,10 +50,10 @@ module.exports = {
 
     try {
       await fs.writeFile(`mocks.json`, JSON.stringify(posts));
-      console.info(`File created`);
+      console.info(chalk.green(`File created`));
       process.exit(ExitCode.SUCCESS);
     } catch (err) {
-      console.info(err);
+      console.info(chalk.red(`Can't write data in file...`));
       process.exit(ExitCode.ERROR);
     }
   }
