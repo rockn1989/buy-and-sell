@@ -5,19 +5,19 @@ const {Router} = require(`express`);
 const mainRouter = new Router();
 
 mainRouter.get(`/`, async (req, res) => {
-  res.send(`main page`);
+  res.render(`pages/main`);
 });
 
 mainRouter.get(`/register`, async (req, res) => {
-  res.send(`Hello register`);
+  res.render(`pages/sign-up`);
 });
 
 mainRouter.get(`/login`, async (req, res) => {
-  res.send(`Hello login`);
+  res.render(`pages/login`);
 });
 
 mainRouter.get(`/search`, async (req, res) => {
-  res.send(`Hello search`);
+  res.render(`pages/search-result`);
 });
 
 module.exports = mainRouter;
