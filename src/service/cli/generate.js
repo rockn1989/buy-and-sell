@@ -1,5 +1,6 @@
 'use strict';
 const fs = require(`fs/promises`);
+const {nanoid} = require(`nanoid`);
 const chalk = require(`chalk`);
 
 const {getRandomInt, shuffle, getRandomPictureName} = require(`../../utils`);
@@ -9,6 +10,7 @@ const {
   PATH_OF_TITLES,
   PATH_OF_DESCRIPTIONS,
   PATH_OF_CATEGORIES,
+  PATH_OF_COMMENTS,
   ExitCode} = require(`../../constants`);
 
 const asyncReadFile = async (filePath) => {
@@ -21,14 +23,23 @@ const asyncReadFile = async (filePath) => {
   }
 };
 
-const generatePost = async (count, titles, descriptions, categories) => {
+const generatePost = async (count, titles, descriptions, categories, comments) => {
   return Array(count).fill({}).map(() => ({
+    id: nanoid(),
     type: getRandomInt(0, 1) === 1 ? `offer` : `sale`,
     title: titles[getRandomInt(0, titles.length - 1)],
     description: shuffle(descriptions).slice(0, getRandomInt(0, descriptions.length - 1)).join(` `),
     sum: getRandomInt(1000, 10000),
     picture: getRandomPictureName(),
-    category: shuffle(categories).slice(0, getRandomInt(1, categories.length - 1))
+    category: shuffle(categories).slice(0, getRandomInt(1, categories.length - 1)),
+    comments: comments.slice(0, getRandomInt(0, comments.length - 1))
+  }));
+};
+
+const generateComments = async (comments) => {
+  return Array(comments.length - 1).fill({}).map(() => ({
+    id: nanoid(),
+    text: shuffle(comments)[getRandomInt(0, comments.length - 1)]
   }));
 };
 
@@ -45,8 +56,10 @@ module.exports = {
     const titles = await asyncReadFile(PATH_OF_TITLES);
     const descriptions = await asyncReadFile(PATH_OF_DESCRIPTIONS);
     const categories = await asyncReadFile(PATH_OF_CATEGORIES);
+    const comments = await asyncReadFile(PATH_OF_COMMENTS);
+    const commentsData = await generateComments(comments);
 
-    const posts = await generatePost(count, titles, descriptions, categories);
+    const posts = await generatePost(count, titles, descriptions, categories, commentsData);
 
     try {
       await fs.writeFile(`mocks.json`, JSON.stringify(posts));

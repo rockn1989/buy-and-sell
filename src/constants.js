@@ -14,6 +14,7 @@ const MAX_POST = 1000;
 const PATH_OF_TITLES = path.resolve(`./data/titles.txt`);
 const PATH_OF_DESCRIPTIONS = path.resolve(`./data/descriptions.txt`);
 const PATH_OF_CATEGORIES = path.resolve(`./data/categories.txt`);
+const PATH_OF_COMMENTS = path.resolve(`./data/comments.txt`);
 
 const ExitCode = {
   SUCCESS: 1,
@@ -22,6 +23,10 @@ const ExitCode = {
 
 const HttpCode = {
   OK: 200,
+  CREATED: 201,
+  DELETED: 204,
+  BAD_REQUEST: 400,
+  FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500
 };
@@ -35,6 +40,7 @@ module.exports = {
   PATH_OF_TITLES,
   PATH_OF_DESCRIPTIONS,
   PATH_OF_CATEGORIES,
+  PATH_OF_COMMENTS,
   ExitCode,
   HttpCode
 };
