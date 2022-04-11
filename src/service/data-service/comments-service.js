@@ -14,6 +14,9 @@ class CommentService {
 
   async findOne(offerId, commentId) {
     const offer = this._offers.find((item) => item.id === offerId);
+    if (!offer) {
+      return null;
+    }
 
     const comment = offer.comments.find((item) => item.id === commentId);
 
@@ -40,6 +43,11 @@ class CommentService {
 
   async create(offerId, comment) {
     const offer = this._offers.find((item) => item.id === offerId);
+
+    if (!offer) {
+      return null;
+    }
+
     const newComment = {id: nanoid(), text: comment};
 
     offer.comments.push(newComment);

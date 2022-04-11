@@ -11,8 +11,11 @@ module.exports = (app, offerService, commentService) => {
 
   route.get(`/`, async (req, res) => {
     const offers = await offerService.findAll();
+    if (!offers) {
+      return res.status(HttpCode.FORBIDDEN).send(`Something wrong`);
+    }
 
-    res.status(HttpCode.OK).json(offers);
+    return res.status(HttpCode.OK).json(offers);
   });
 
   route.get(`/:id`, async (req, res) => {
@@ -95,7 +98,7 @@ module.exports = (app, offerService, commentService) => {
     const deletedComment = await commentService.drop(offerId, commentId);
 
     if (!deletedComment) {
-      return res.status(HttpCode.FORBIDDEN).send(`Not found with ${commentId}`);
+      return res.status(HttpCode.NOT_FOUND).send(`Not found with ${commentId}`);
     }
 
     return res.status(HttpCode.DELETED).send(`deleted`);
@@ -106,6 +109,9 @@ module.exports = (app, offerService, commentService) => {
 
     const comment = await commentService.create(offerId, req.body);
 
+    if (!comment) {
+      return res.status(HttpCode.NOT_FOUND).send(`not found`);
+    }
     return res.status(HttpCode.CREATED).send(comment);
   });
 

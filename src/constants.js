@@ -15,10 +15,16 @@ const PATH_OF_TITLES = path.resolve(`./data/titles.txt`);
 const PATH_OF_DESCRIPTIONS = path.resolve(`./data/descriptions.txt`);
 const PATH_OF_CATEGORIES = path.resolve(`./data/categories.txt`);
 const PATH_OF_COMMENTS = path.resolve(`./data/comments.txt`);
+const PATH_OF_API_LOG = `./logs/api.log`;
 
 const ExitCode = {
   SUCCESS: 1,
   ERROR: 0
+};
+
+const Env = {
+  DEVELOPMENT: `development`,
+  PRODUCTION: `production`
 };
 
 const HttpCode = {
@@ -41,6 +47,8 @@ module.exports = {
   PATH_OF_DESCRIPTIONS,
   PATH_OF_CATEGORIES,
   PATH_OF_COMMENTS,
+  PATH_OF_API_LOG,
   ExitCode,
-  HttpCode
+  HttpCode,
+  Env
 };

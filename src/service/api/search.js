@@ -9,6 +9,11 @@ module.exports = (app, searchService) => {
 
   route.get(`/`, async (req, res) => {
     const {query} = req.query;
+
+    if (!query) {
+      return res.status(HttpCode.BAD_REQUEST).send(`Bad request`);
+    }
+
     const result = await searchService.findAll(query);
 
     if (!result) {

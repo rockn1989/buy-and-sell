@@ -45,7 +45,7 @@ class OfferService {
     if (!oldOffer) {
       return null;
     }
-    console.log(oldOffer);
+
     return Object.assign(oldOffer, offer);
   }
 }
