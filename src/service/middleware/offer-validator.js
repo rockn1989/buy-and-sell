@@ -2,9 +2,10 @@
 
 const {HttpCode} = require(`../../constants`);
 
-const offerKeys = [`category`, `description`, `picture`, `title`, `type`, `sum`];
+const offerKeys = [`category`, `description`, `avatar`, `title`, `type`, `sum`];
 
 const offerValidator = (req, res, next) => {
+  console.log(req.body);
   const newOffer = req.body;
   const keys = Object.keys(newOffer);
   const keyExists = offerKeys.every((key) => keys.includes(key));

@@ -30,18 +30,7 @@ module.exports = (app, offerService, commentService) => {
   });
 
   route.post(`/`, offerValidator, async (req, res) => {
-
-    const offer = {
-      id: 1,
-      type: `offer`,
-      title: `test`,
-      description: `hellow world`,
-      sum: 4534,
-      picture: `offer-01.jpg`,
-      category: [`Game`]
-    };
-
-    const result = await offerService.create(offer);
+    const result = await offerService.create(req.body);
 
     res.status(HttpCode.CREATED).json(result);
   });
