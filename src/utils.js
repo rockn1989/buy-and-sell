@@ -24,8 +24,21 @@ const getRandomPictureName = () => {
   return pictureName;
 };
 
+const getRandomDate = () => {
+
+  const dateNow = new Date();
+  const dateOld = new Date().setMonth(new Date().getMonth() - 3);
+  const randomDate = new Date(getRandomInt(dateOld, +dateNow));
+
+  const month = randomDate.getMonth() < 10 ? `0${randomDate.getMonth()}` : randomDate.getMonth();
+  const date = randomDate.getDate() < 10 ? `0${randomDate.getDate()}` : randomDate.getDate();
+
+  return `${randomDate.getFullYear()}-${month}-${date}`;
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
-  getRandomPictureName
+  getRandomPictureName,
+  getRandomDate
 };

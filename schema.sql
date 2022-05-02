@@ -2,9 +2,10 @@ DROP TABLE IF EXISTS offers_categories;
 DROP TABLE IF EXISTS users_roles;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS offers;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS offers;
+
 
 CREATE TABLE categories (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -32,7 +33,11 @@ CREATE TABLE offers (
   sum INTEGER NOT NULL,
   description TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT current_timestamp,
-  picture VARCHAR(255) NOT NULL
+  picture VARCHAR(255) NOT NULL,
+  user_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
 
 CREATE INDEX ON offers(title);
@@ -40,7 +45,7 @@ CREATE INDEX ON offers(title);
 CREATE TABLE comments (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   comment TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT current_timestamp,
   user_id INTEGER NOT NULL,
   offer_id INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id)
