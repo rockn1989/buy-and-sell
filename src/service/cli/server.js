@@ -1,9 +1,12 @@
 'use strict';
 
 const express = require(`express`);
+const sequelize = require(`../lib/sequelize`);
+
+const chalk = require(`chalk`);
 const {getLogger} = require(`../lib/logger`);
 const routes = require(`../api`);
-const {DEFAULT_PORT, HttpCode} = require(`../../constants`);
+const {DEFAULT_PORT, HttpCode, ExitCode} = require(`../../constants`);
 
 const logger = getLogger({name: `api`});
 
@@ -32,14 +35,24 @@ app.use((err, _req, _res, _next) => {
 
 module.exports = {
   name: `--server`,
-  run(args) {
+  async run(args) {
     const port = parseInt(args, 10) || DEFAULT_PORT;
+
+    try {
+      logger.info(chalk.yellow(`Connection to DB...`));
+      await sequelize.authenticate();
+    } catch (err) {
+      logger.info(chalk.red(`Error to connect with DB: ${err.message}`));
+      process.exit(ExitCode.ERROR);
+    }
+
+    logger.info(chalk.green(`Connection to database established`));
 
     app
       .listen(port, () => {
-        logger.info(`Ожидаю соединения на порт: ${port}`);
+        logger.info(`Waiting to connect on port: ${port}`);
       }).on(`error`, ({message}) => {
-        logger.error(`Ошибка при создании сервера ${message}`);
+        logger.error(`Error create server: ${message}`);
       });
   }
 };
