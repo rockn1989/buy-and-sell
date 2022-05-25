@@ -2,21 +2,28 @@
 
 const request = require(`supertest`);
 const express = require(`express`);
+const Sequelize = require(`sequelize`);
+const initDb = require(`../lib/init-db`);
+
 const offers = require(`./offers`);
 const OfferService = require(`../data-service/offers-service`);
 const CommentService = require(`../data-service/comments-service`);
 const {HttpCode} = require(`../../constants`);
 
-const mockData = [
+const mockCategories = [
+  `Журналы`,
+  `Игры`,
+  `Животные`
+];
+
+const mockOffers = [
   {
-    "id": `Fg0ikD`,
     "user": `ivanov@example.com`,
-    "category": [
+    "categories": [
       `Журналы`
     ],
     "comments": [
       {
-        "id": `Fg0ikD`,
         "user": `ivanov@example.com`,
         "text": `Почему в таком ужасном состоянии?`
       },
@@ -29,12 +36,12 @@ const mockData = [
     "picture": `item09.jpg`,
     "title": `Продам новую приставку Sony Playstation 5`,
     "type": `SALE`,
-    "sum": 79555
+    "sum": 79555,
+    "userId": 1
   },
   {
-    "id": `E7qAM5`,
     "user": `petrov@example.com`,
-    "category": [
+    "categories": [
       `Игры`,
     ],
     "comments": [
@@ -62,9 +69,8 @@ const mockData = [
     "sum": 55460
   },
   {
-    "id": `lVQQlp`,
     "user": `ivanov@example.com`,
-    "category": [
+    "categories": [
       `Животные`
     ],
     "comments": [
@@ -81,31 +87,57 @@ const mockData = [
   }
 ];
 
-const createAPI = () => {
+const mockUsers = [
+  {
+    firstname: `Иван`,
+    lastname: `Иванов`,
+    email: `ivanov@example.com`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar1.jpg`,
+    roleId: `1`
+  }, {
+    firstname: `Пётр`,
+    lastname: `Петров`,
+    email: `petrov@example.com`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar2.jpg`,
+    roleId: `2`
+  },
+  {
+    firstname: `Артем`,
+    lastname: `Рябков`,
+    email: `gold_100@bk.ru`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar2.jpg`,
+    roleId: `3`
+  }
+];
+const mockRoles = [`user`, `author`, `admin`];
+
+const createAPI = async () => {
+  const mockDB = new Sequelize(`sqlite::memory`, {logging: false});
+  await initDb(mockDB, {categories: mockCategories, posts: mockOffers, users: mockUsers, roles: mockRoles});
   const app = express();
   app.use(express.json());
-  const cloneData = JSON.parse(JSON.stringify(mockData));
-  offers(app, new OfferService(cloneData), new CommentService(cloneData));
+
+  offers(app, new OfferService(mockDB), new CommentService(mockDB));
   return app;
 };
 
 describe(`POSITVE`, () => {
 
   describe(`OFFERS: GET`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .get(`/offers`);
     });
 
     test(`Status code 200`, () => {
       expect(response.statusCode).toBe(HttpCode.OK);
-    });
-
-    test(`First offer id is Fg0ikD`, () => {
-      expect(response.body[0].id).toEqual(`Fg0ikD`);
     });
 
     test(`Get offer counts`, () => {
@@ -115,6 +147,7 @@ describe(`POSITVE`, () => {
   });
 
   describe(`OFFERS: POST`, () => {
+    let app;
     const offer = {
       type: `offer`,
       title: `test`,
@@ -124,9 +157,8 @@ describe(`POSITVE`, () => {
       category: [`Game`]
     };
 
-    const app = createAPI();
-
     test(`Status code 201 offer when created with validate data`, async () => {
+      app = await createAPI();
       await request(app)
         .post(`/offers`)
         .send(offer)
@@ -136,12 +168,23 @@ describe(`POSITVE`, () => {
   });
 
   describe(`OFFERS: PUT`, () => {
-    const app = createAPI();
+    let app;
     let response;
+    const newOffer = {
+      type: `offer`,
+      title: `test`,
+      description: `hellow world`,
+      sum: 4534,
+      picture: `offer-01.jpg`,
+      category: [1, 2],
+      userId: 1,
+    };
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
-        .put(`/offers/Fg0ikD`);
+        .put(`/offers/1`)
+        .send(newOffer);
     });
 
     test(`Update offer`, () => {
@@ -151,27 +194,27 @@ describe(`POSITVE`, () => {
   });
 
   describe(`OFFERS: DELETE`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
-        .delete(`/offers/Fg0ikD`);
+        .delete(`/offers/1`);
     });
 
-    test(`Status code 200`, () => {
-      expect(response.statusCode).toBe(HttpCode.OK);
-    });
+    test(`Status code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
 
   });
 
   describe(`COMMENTS: GET`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
-        .get(`/offers/Fg0ikD/comments`);
+        .get(`/offers/1/comments`);
     });
 
     test(`Status code 200 for comments`, () => {
@@ -180,12 +223,13 @@ describe(`POSITVE`, () => {
   });
 
   describe(`COMMENTS: POST`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
-        .post(`/offers/Fg0ikD/comments`)
+        .post(`/offers/1/comments`)
         .send({
           id: 1,
           text: `Hello`
@@ -198,12 +242,13 @@ describe(`POSITVE`, () => {
   });
 
   describe(`COMMENTS: DELETE`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
-        .delete(`/offers/Fg0ikD/comments/Fg0ikD`);
+        .delete(`/offers/1/comments/1`);
     });
 
     test(`Status code 204 for comments when deleted`, () => {
@@ -216,10 +261,11 @@ describe(`POSITVE`, () => {
 describe(`NEGATIVE`, () => {
 
   describe(`OFFERS: GET`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .get(`/offers/ekjdle`);
     });
@@ -240,9 +286,14 @@ describe(`NEGATIVE`, () => {
       category: [`Game`]
     };
 
-    const app = createAPI();
+    let app;
+
+    beforeAll(async () => {
+      app = await createAPI();
+    });
 
     test(`No validate data offer`, async () => {
+
       for (const key of Object.keys(offer)) {
         const newOffer = {...offer};
         delete newOffer[key];
@@ -256,10 +307,11 @@ describe(`NEGATIVE`, () => {
   });
 
   describe(`OFFERS: PUT`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .put(`/offers/NOEXISTS`);
     });
@@ -271,25 +323,27 @@ describe(`NEGATIVE`, () => {
   });
 
   describe(`OFFERS: DELETE`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .delete(`/offers/NOEXISTS`);
     });
 
-    test(`Delete no no exists offer`, () => {
+    test(`Delete no exists offer`, () => {
       expect(response.statusCode).toBe(HttpCode.NOT_FOUND);
     });
 
   });
 
   describe(`COMMENTS: GET`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .get(`/offers/NOEXISTS/comments`);
     });
@@ -300,10 +354,11 @@ describe(`NEGATIVE`, () => {
   });
 
   describe(`COMMENTS: POST`, () => {
-    const app = createAPI();
+    let app;
     let response;
 
     beforeAll(async () => {
+      app = await createAPI();
       response = await request(app)
         .post(`/offers/NOEXISTS/comments`)
         .send({
@@ -318,17 +373,21 @@ describe(`NEGATIVE`, () => {
   });
 
   describe(`COMMENTS: DELETE`, () => {
-    const app = createAPI();
+    let app;
 
-    test(`Status code 404 for no exists offer`, async () => {
-      await request(app)
+    beforeAll(async () => {
+      app = await createAPI();
+    });
+
+    test(`Status code 404 for no exists offer`, () => {
+      return request(app)
         .delete(`/offers/NOEXISTS/comments/NOEXISTS`)
         .expect(HttpCode.NOT_FOUND);
     });
 
-    test(`Status code 404 for no exists comment`, async () => {
-      await request(app)
-        .delete(`/offers/Fg0ikD/comments/NOEXISTS`)
+    test(`Status code 404 for no exists comment`, () => {
+      return request(app)
+        .delete(`/offers/1/comments/NOEXISTS`)
         .expect(HttpCode.NOT_FOUND);
     });
   });

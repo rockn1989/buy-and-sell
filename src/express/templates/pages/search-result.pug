@@ -5,12 +5,12 @@ block content
     section.search-results
       h1.visually-hidden Результаты поиска
       .search-results__wrapper
-        if offers && offers.length > 0
+        if results && results.length > 0
           p.search-results__label
             | Найдено
-            span.js-results  публикаций #{offers.length}
+            span.js-results  публикаций #{results.length}
             ul.search-results__list
-              each offer of offers
+              each offer of results
                 li.search-results__item
                   .ticket-card.ticket-card--color05
                     .ticket-card__img
@@ -18,8 +18,8 @@ block content
                     .ticket-card__info
                       span.ticket-card__label #{offer.type}
                       .ticket-card__categories
-                        each category of offer.category
-                          a(href='#') #{category}
+                        each category of offer.categories
+                          a(href='#') #{category.name}
                       .ticket-card__header
                         h3.ticket-card__title
                           a(href=`/offers/${offer.id}`) #{offer.title}
@@ -29,7 +29,7 @@ block content
                       .ticket-card__desc
                         p #{offer.description}
 
-        if offers.length === 0
+        if results.length === 0
             p.search-results__message
               | Не найдено
               br
@@ -39,21 +39,22 @@ block content
       .tickets-list__wrapper
         .tickets-list__header
           p.tickets-list__title Самое свежее
-          a.tickets-list__link(href='#') Еще 25
         ul
-          li.tickets-list__item
-            .ticket-card.ticket-card--color01
-              .ticket-card__img
-                img(src='img/item01.jpg' srcset='img/item01@2x.jpg 2x' alt='Изображение товара')
-              .ticket-card__info
-                span.ticket-card__label Куплю
-                .ticket-card__categories
-                  a(href='#') Дом
-                .ticket-card__header
-                  h3.ticket-card__title
-                    a(href='#') Монстера
-                  p.ticket-card__price
-                    span.js-sum 1000
-                    |  ₽
-                .ticket-card__desc
-                  p Куплю монстеру зеленую в хорошем зеленом состоянии, буду поливать...
+          for offer of offers
+            li.tickets-list__item
+              .ticket-card.ticket-card--color01
+                .ticket-card__img
+                  img(src=`/img/${offer.picture}` alt='Изображение товара')
+                .ticket-card__info
+                  span.ticket-card__label #{offer.type}
+                  .ticket-card__categories
+                    for category of offer.categories
+                      a(href=`/offers/category/${category.id}`) #{category.name}
+                  .ticket-card__header
+                    h3.ticket-card__title
+                      a(href=`/offers/${offer.id}`) #{offer.title}
+                    p.ticket-card__price
+                      span.js-sum #{offer.sum}
+                      |  ₽
+                  .ticket-card__desc
+                    p #{offer.description}

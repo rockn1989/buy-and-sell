@@ -41,6 +41,7 @@ module.exports = {
     try {
       logger.info(chalk.yellow(`Connection to DB...`));
       await sequelize.authenticate();
+
     } catch (err) {
       logger.info(chalk.red(`Error to connect with DB: ${err.message}`));
       process.exit(ExitCode.ERROR);

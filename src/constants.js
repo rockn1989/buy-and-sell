@@ -11,6 +11,8 @@ const USER_ARGV_INDEX = 2;
 const MIN_POST = 1;
 const MAX_POST = 1000;
 
+const OFFERS_PER_PAGE = 8;
+
 const PATH_OF_TITLES = path.resolve(`./data/titles.txt`);
 const PATH_OF_DESCRIPTIONS = path.resolve(`./data/descriptions.txt`);
 const PATH_OF_CATEGORIES = path.resolve(`./data/categories.txt`);
@@ -41,6 +43,7 @@ module.exports = {
   DEFAULT_COMMAND,
   DEFAULT_PORT,
   USER_ARGV_INDEX,
+  OFFERS_PER_PAGE,
   MIN_POST,
   MAX_POST,
   PATH_OF_TITLES,

@@ -2,7 +2,7 @@
 
 const {Router} = require(`express`);
 const {getAPI} = require(`../api`);
-
+const {OFFERS_PER_PAGE} = require(`../../constants`);
 const mainRouter = new Router();
 
 
@@ -10,8 +10,8 @@ const api = getAPI();
 
 mainRouter.get(`/`, async (req, res) => {
   const [offers, categories] = await Promise.all([
-    api.getOffers(),
-    api.getCategories()
+    api.getOffers({limit: OFFERS_PER_PAGE}),
+    api.getCategories({count: true})
   ]);
   res.render(`pages/main`, {offers, categories});
 });
@@ -26,12 +26,16 @@ mainRouter.get(`/login`, async (req, res) => {
 
 mainRouter.get(`/search`, async (req, res) => {
   const {query: searchValue} = req.query;
-
   try {
-    const offers = await api.search(searchValue);
-    res.render(`pages/search-result`, {offers, searchValue});
+    const [results, offers] = await Promise.all([
+      api.search(searchValue),
+      api.getOffers({limit: OFFERS_PER_PAGE})
+    ]);
+
+    res.render(`pages/search-result`, {searchValue, results, offers});
   } catch (err) {
-    res.render(`pages/search-result`, {offers: []});
+    const offers = await api.getOffers({limit: OFFERS_PER_PAGE});
+    res.render(`pages/search-result`, {results: [], offers});
   }
 });
 

@@ -20,23 +20,43 @@ class API {
     return response.data;
   }
 
-  async getCategories() {
-    return await this._load(`/categories`);
+  async getCategories(count) {
+    return await this._load(`/categories`, {
+      params: count
+    });
   }
 
-  async getOffers() {
-    return this._load(`/offers`);
+  async getCategory(id) {
+    return await this._load(`/categories/${id}`);
   }
 
-  async getOffer(id) {
-    return this._load(`/offers/${id}`);
+  async getOffers({limit, comments} = {}) {
+    return this._load(`/offers`, {
+      params: {limit, comments}
+    });
+  }
+
+  async getOffer(id, comments) {
+    return this._load(`/offers/${id}`, {
+      params: comments
+    });
+  }
+
+  async createComment(id, data) {
+    return this._load(`/offers/${id}/comments`, {
+      method: `POST`,
+      data
+    });
   }
 
   async getComments() {
-    const offers = await this.getOffers();
-    const comments = offers.map((item) => item.comments);
+    return this._load(`/comments`);
+  }
 
-    return comments.flat();
+  async deleteComment(offerId, commentId) {
+    return this._load(`/offers/${offerId}/comments/${commentId}`, {
+      method: `DELETE`
+    });
   }
 
   async search(query) {
@@ -47,6 +67,19 @@ class API {
     return this._load(`/offers`, {
       method: `POST`,
       data
+    });
+  }
+
+  async editOffer(id, offerData) {
+    return this._load(`/offers/${id}`, {
+      method: `PUT`,
+      data: offerData
+    });
+  }
+
+  async deleteOffer(id) {
+    return this._load(`/offers/${id}`, {
+      method: `DELETE`
     });
   }
 }

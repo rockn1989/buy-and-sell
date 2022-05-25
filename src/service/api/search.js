@@ -16,7 +16,7 @@ module.exports = (app, searchService) => {
 
     const result = await searchService.findAll(query);
 
-    if (!result) {
+    if (result.length === 0) {
       return res.status(HttpCode.NOT_FOUND).send(`not found`);
     }
 

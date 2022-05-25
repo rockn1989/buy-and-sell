@@ -9,8 +9,16 @@ module.exports = (app, categoryService) => {
   app.use(`/categories`, route);
 
   route.get(`/`, async (req, res) => {
-    const categories = await categoryService.findAll();
-
+    const {count} = req.query;
+    const categories = await categoryService.findAll(count);
     return res.status(HttpCode.OK).json(categories);
+  });
+
+  route.get(`/:id`, async (req, res) => {
+    const {id} = req.params;
+
+    const {count, offersByCategory} = await categoryService.findPage(id);
+    const category = await categoryService.findOne(id);
+    return res.status(HttpCode.OK).json({count, offersByCategory, category});
   });
 };

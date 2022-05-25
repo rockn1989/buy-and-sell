@@ -17,13 +17,18 @@ block content
                 .ticket-card__info
                   span.ticket-card__label #{offer.type}
                   .ticket-card__categories
-                    each category of offer.category
-                      a(href='#') #{category}
+                    each category of offer.categories
+                      a(href=`/offers/category/${category.id}`) #{category.name}
                   .ticket-card__header
                     h3.ticket-card__title
                       a(href=`/offers/${offer.id}`) #{offer.title}
                     p.ticket-card__price
                       span.js-sum #{offer.sum}
                       |  ₽
-                button.ticket-card__del.js-delete(type='button') Удалить
+                form(action=`/my/${offer.id}` method='POST')
+                  button.ticket-card__del(type='submit') Удалить
+
+              if errorMessage
+                p
+                  | #{errorMessage}
 

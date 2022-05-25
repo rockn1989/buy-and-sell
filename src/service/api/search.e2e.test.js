@@ -2,18 +2,27 @@
 
 const request = require(`supertest`);
 const express = require(`express`);
+const Sequelize = require(`sequelize`);
+const initDb = require(`../lib/init-db`);
+
 const search = require(`./search`);
 const SearchService = require(`../data-service/search-service`);
 const {HttpCode} = require(`../../constants`);
 
+const mockDB = new Sequelize(`sqlite::memory`, {logging: false});
 const app = express();
 app.use(express.json());
 
+const mockCategories = [
+  `Журналы`,
+  `Игры`,
+  `Животные`
+];
+
 const mockData = [
   {
-    "id": `Fg0ikD`,
     "user": `ivanov@example.com`,
-    "category": [
+    "categories": [
       `Журналы`
     ],
     "comments": [
@@ -33,9 +42,8 @@ const mockData = [
     "sum": 79555
   },
   {
-    "id": `E7qAM5`,
     "user": `petrov@example.com`,
-    "category": [
+    "categories": [
       `Игры`,
     ],
     "comments": [
@@ -63,9 +71,8 @@ const mockData = [
     "sum": 55460
   },
   {
-    "id": `lVQQlp`,
     "user": `ivanov@example.com`,
-    "category": [
+    "categories": [
       `Животные`
     ],
     "comments": [
@@ -82,7 +89,37 @@ const mockData = [
   }
 ];
 
-search(app, new SearchService(mockData));
+const mockUsers = [
+  {
+    firstname: `Иван`,
+    lastname: `Иванов`,
+    email: `ivanov@example.com`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar1.jpg`,
+    roleId: `1`
+  }, {
+    firstname: `Пётр`,
+    lastname: `Петров`,
+    email: `petrov@example.com`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar2.jpg`,
+    roleId: `2`
+  },
+  {
+    firstname: `Артем`,
+    lastname: `Рябков`,
+    email: `gold_100@bk.ru`,
+    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    avatar: `avatar2.jpg`,
+    roleId: `3`
+  }
+];
+const mockRoles = [`user`, `author`, `admin`];
+
+beforeAll(async () => {
+  await initDb(mockDB, {categories: mockCategories, posts: mockData, users: mockUsers, roles: mockRoles});
+  search(app, new SearchService(mockDB));
+});
 
 describe(`SEARCH: POSITIVE`, () => {
   let response;
@@ -94,6 +131,7 @@ describe(`SEARCH: POSITIVE`, () => {
   });
 
   test(`Status code 200`, () => {
+
     expect(response.statusCode).toBe(HttpCode.OK);
   });
 
@@ -102,7 +140,7 @@ describe(`SEARCH: POSITIVE`, () => {
   });
 
   test(`Offer has correct ID`, () => {
-    expect(response.body[0].id).toBe(`Fg0ikD`);
+    expect(response.body[0].title).toBe(`Продам новую приставку Sony Playstation 5`);
   });
 
 });

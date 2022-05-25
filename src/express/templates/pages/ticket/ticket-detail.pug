@@ -7,42 +7,38 @@ block content
         h1.visually-hidden Карточка объявления
         .ticket__content
           .ticket__img
-            img(src='/img/ticket.jpg' srcset='/img/ticket@2x.jpg 2x' alt='Изображение товара')
+            img(src=`/img/${offer.picture}` alt='Изображение товара')
           .ticket__info
-            h2.ticket__title Мое старое кресло
+            h2.ticket__title #{offer.title}
             .ticket__header
               p.ticket__price
-                span.js-sum 4000
+                span.js-sum #{offer.sum}
                 |  ₽
-              p.ticket__action ПРОДАМ
+              p.ticket__action #{offer.type}
             .ticket__desc
               p
-                | Продам свое старое кресло, чтобы сидеть и читать книги зимними вечерами. Ножки мягкие, мой пол не царапают. Кресло почти новое – продаю, т.к. надоел серый цвет. Можно, конечно, накинуть плед и спасти ситуацию, но я все-таки хочу просто другое кресло. В общем оно на самом деле удобное и с ним все хорошо, просто нам пора расстаться.
+                | #{offer.description}
             .ticket__data
               p
                 b Дата добавления:
-                span 20 ноября 2019
+                  +formatDate(offer.createdAt, true)
               p
                 b Автор:
-                a(href='#') Денис Шкатулкин
+                a(href='#')  #{offer.users.firstname} #{offer.users.lastname}
               p
                 b Контакты:
-                a(href='mailto:shkatulkin@ya.ru') shkatulkin@ya.ru
+                a(href=`mailto:${offer.users.email}`)  #{offer.users.email}
             ul.ticket__tags
-              li
-                a.category-tile.category-tile--small(href='#')
-                  span.category-tile__image
-                    img(src='/img/cat.jpg' srcset='/img/cat@2x.jpg 2x' alt='Иконка категории')
-                  span.category-tile__label Дом
-              li
-                a.category-tile.category-tile--small(href='#')
-                  span.category-tile__image
-                    img(src='/img/cat04.jpg' srcset='/img/cat04@2x.jpg 2x' alt='Иконка категории')
-                  span.category-tile__label Спорт и отдых
+              each category of offer.categories
+                li
+                  a.category-tile.category-tile--small(href=`/offers/category/${category.id}`)
+                    span.category-tile__image
+                      +categoryImage(category)
+                    span.category-tile__label #{category.name}
         .ticket__comments
           h2.ticket__subtitle Коментарии
           .ticket__comment-form
-            form.form.comment-form(action='#' method='post')
+            form.form.comment-form(action=`/offers/${offer.id}` method='post')
               .comment-form__header
                 a.comment-form__avatar.avatar(href='#')
                   img(src='/img/avatar.jpg' srcset='/img/avatar@2x.jpg 2x' alt='Аватар пользователя')
@@ -55,22 +51,13 @@ block content
               button.comment-form__button.btn.btn--white.js-button(type='submit' disabled='') Отправить
           .ticket__comments-list
             ul.comments-list
-              li
-                .comment-card
-                  .comment-card__header
-                    a.comment-card__avatar.avatar(href='#')
-                      img(src='/img/avatar02.jpg' srcset='/img/avatar02@2x.jpg 2x' alt='Аватар пользователя')
-                    p.comment-card__author Георгий Шпиц
-                  .comment-card__content
-                    p Что это за рухлядь? Стыдно такое даже фотографировать, не то, что продавать.
-              li
-                .comment-card
-                  .comment-card__header
-                    a.comment-card__avatar.avatar(href='#')
-                      img(src='/img/avatar03.jpg' srcset='/img/avatar03@2x.jpg 2x' alt='Аватар пользователя')
-                    p.comment-card__author Александр Бурый
-                  .comment-card__content
-                    p
-                      | А можете доставить мне домой? Готов доплатить 300 сверху.
-                      br
-                      | Живу в центре прямо рядом с Моховой улицей. Готов купить прямо сейчас. Мой телефон 9032594748
+              if offer.comments && offer.comments.length >= 1
+                each comments of offer.comments
+                  li
+                    .comment-card
+                      .comment-card__header
+                        a.comment-card__avatar.avatar(href=`${comments.users.id}`)
+                          img(src=`/img/${comments.users.avatar}` srcset=`/img/${comments.users.avatar}` alt='Аватар пользователя')
+                        p.comment-card__author #{comments.users.firstname} #{comments.users.lastname} #{comments.users.passwordHash}
+                      .comment-card__content
+                        p #{comments.text}

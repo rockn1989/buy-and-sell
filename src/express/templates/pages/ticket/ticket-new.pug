@@ -10,8 +10,8 @@ block content
             .ticket-form__avatar-container.js-preview-container
               .ticket-form__avatar.js-preview
               .ticket-form__field-avatar
-                input#avatar.visually-hidden.js-file-field(type='file' name='avatar')
-                label(for='avatar')
+                input#picture.visually-hidden.js-file-field(type='file' name='picture')
+                label(for='picture')
                   span.ticket-form__text-upload Загрузить фото…
                   span.ticket-form__text-another Загрузить другое фото…
             .ticket-form__content
@@ -28,7 +28,7 @@ block content
               .ticket-form__row
                 select#category-field.form__select.js-multiple-select(name='category' data-label='Выбрать категорию публикации')
                   each category of categories
-                    option(value=category) #{category}
+                    option(value=category.id) #{category.name}
               .ticket-form__row
                 .form__field.form__field--price
                   input#price-field.js-field.js-price(type='number' name='sum' min='1' required='')

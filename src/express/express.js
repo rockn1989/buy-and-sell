@@ -19,14 +19,12 @@ app.use(`/offers`, offersRouter);
 app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 app.use(express.static(path.resolve(__dirname, UPLOAD_DIR)));
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(HttpCode.NOT_FOUND).render(`errors/404`);
-  next();
 });
 
-// app.use((error, req, res, next) => {
+// app.use((error, req, res) => {
 //   res.status(HttpCode.INTERNAL_SERVER_ERROR).render(`errors/500`, {error});
-//   next();
 // });
 
 app.set(`views`, path.resolve(__dirname, `templates`));

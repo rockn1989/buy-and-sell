@@ -1,52 +1,148 @@
 'use strict';
 
-const {nanoid} = require(`nanoid`);
+const Aliase = require(`../models/aliase`);
 
 class OfferService {
-  constructor(offers) {
-    this._offers = offers;
+  constructor(sequelize) {
+    this._Offer = sequelize.models.Offer;
+    this._Category = sequelize.models.Category;
+    this._User = sequelize.models.User;
+    this._Comment = sequelize.models.Comment;
   }
-  async findAll() {
-    return this._offers;
+  async findAll({comments}) {
+
+    const options = {
+      include: [{
+        model: this._Category,
+        as: Aliase.CATEGORIES
+      }],
+      order: [
+        [`createdAt`, `DESC`]
+      ]
+    };
+
+    if (comments) {
+      options.include.push({
+        model: this._Comment,
+        as: Aliase.COMMENTS,
+        include: [{
+          model: this._User,
+          as: Aliase.USERS,
+          attributes: {
+            exclude: [`passwordHash`]
+          }
+        }]
+      });
+      options.order = [
+        [Aliase.COMMENTS, `createdAt`, `DESC`]
+      ];
+    }
+
+    const offers = await this._Offer.findAll(options);
+
+    return offers.map((item) => item.get());
   }
 
-  async findOne(id) {
-    const offer = this._offers.find((item) => item.id === id);
+  async findOne({offerId, comments}) {
+
+    const options = {
+      include: [
+        Aliase.CATEGORIES, {
+          model: this._User,
+          as: Aliase.USERS,
+          attributes: {
+            exclude: [`passwordHash`]
+          }
+        }
+      ]
+    };
+
+    if (comments) {
+      options.include.push({
+        model: this._Comment,
+        as: Aliase.COMMENTS,
+        include: [{
+          model: this._User,
+          as: Aliase.USERS,
+          attributes: {
+            exclude: [`passwordHash`]
+          }
+        }]
+      });
+      options.order = [
+        [Aliase.COMMENTS, `createdAt`, `DESC`]
+      ];
+    }
+
+    let offer;
+
+    try {
+      offer = await this._Offer.findByPk(offerId, options);
+    } catch (err) {
+      return false;
+    }
 
     if (!offer) {
-      return null;
+      return !!offer;
     }
 
     return offer;
   }
 
   async create(offer) {
-    const newOffer = Object.assign({id: nanoid(), comments: []}, offer);
-    this._offers.push(newOffer);
+    const newOffer = await this._Offer.create({...offer, userId: 3});
+
+    try {
+      await newOffer.addCategories(offer.category);
+    } catch (err) {
+      return err.message;
+    }
 
     return newOffer;
   }
 
   async drop(id) {
-    const offer = await this.findOne(id);
+    let offerId;
 
-    if (!offer) {
-      return null;
+    try {
+      offerId = await this._Offer.destroy({
+        where: {id}
+      });
+
+    } catch (err) {
+      return false;
     }
 
-    this._offers = this._offers.filter((item) => item.id !== id);
+    if (!offerId) {
+      return !!offerId;
+    }
 
-    return offer;
+    return offerId;
   }
 
-  async update(id, offer) {
-    const oldOffer = await this.findOne(id);
+  async update(offerId, offerData) {
+    let affectedRow;
+    let updateOffer;
 
-    if (!oldOffer) {
-      return null;
+    try {
+      affectedRow = await this._Offer.update(offerData, {
+        where: {id: offerId}
+      });
+    } catch (err) {
+      return false;
     }
 
-    return Object.assign(oldOffer, offer);
+    try {
+      updateOffer = await this._Offer.findOne({
+        where: {id: offerId}
+      });
+
+      await updateOffer.setCategories(offerData.category);
+    } catch (err) {
+      return false;
+    }
+
+    return affectedRow;
   }
 }
 
