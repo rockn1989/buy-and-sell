@@ -6,10 +6,10 @@ block content
     .tickets-list__wrapper
       .tickets-list__header
         p.tickets-list__title
-          | #{offers.category.name}
-          b.js-qty  #{offers.count}
+          | #{category.name}
+          b.js-qty  #{count}
       ul
-        for offer of offers.offersByCategory
+        for offer of offersByCategory
           li.tickets-list__item
             .ticket-card.ticket-card--color06
               .ticket-card__img
@@ -27,4 +27,4 @@ block content
                     |  ₽
                 .ticket-card__desc
                   p #{offer.description}
-      include ../partials/pagination
+      +getPagintaion(page, count, limit)

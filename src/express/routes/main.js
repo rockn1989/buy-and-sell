@@ -9,11 +9,17 @@ const mainRouter = new Router();
 const api = getAPI();
 
 mainRouter.get(`/`, async (req, res) => {
-  const [offers, categories] = await Promise.all([
-    api.getOffers({limit: OFFERS_PER_PAGE}),
+
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = OFFERS_PER_PAGE;
+  const offset = (page - 1) * limit;
+
+  const [{offers, count}, categories] = await Promise.all([
+    api.getOffers({limit, page, offset}),
     api.getCategories({count: true})
   ]);
-  res.render(`pages/main`, {offers, categories});
+
+  res.render(`pages/main`, {offers, categories, limit, page, count});
 });
 
 mainRouter.get(`/register`, async (req, res) => {

@@ -1,3 +1,23 @@
+mixin getPagintaion(currentPage, offersCount, limit)
+  -
+    const items = new Array(offersCount).fill(``);
+    let page = 1;
+
+  .tickets-list__pagination
+    ul.pagination
+      each val, index in items
+        if index == 0 && currentPage - 1 != 0
+          li
+            a(href=`?page=${currentPage - 1}`)='Назад'
+
+        if index % limit == 0
+          li
+            a(href=(page == currentPage ? `#` : `?page=${page}`) class={active: page == currentPage})=page++
+
+        if currentPage < (items.length / limit) && index == items.length - 1
+          li
+            a(href=`?page=${currentPage + 1}`)='Вперед'
+
 -
   const getRandomInt = (max) => Math.ceil(Math.random()*max);
 
@@ -30,6 +50,10 @@ html(lang='ru')
     meta(http-equiv='X-UA-Compatible' content='ie=edge')
     title Куплю Продам
     link(rel='stylesheet' href='/css/style.min.css')
+    style.
+      a.active{
+        pointer-events: none;
+      }
   body
     include ./partials/header.pug
     block content

@@ -9,6 +9,27 @@ class OfferService {
     this._User = sequelize.models.User;
     this._Comment = sequelize.models.Comment;
   }
+
+  async findPage({limit, offset}) {
+
+    const options = {
+      limit,
+      offset,
+      distinct: true,
+      include: [{
+        model: this._Category,
+        as: Aliase.CATEGORIES
+      }],
+      order: [
+        [`createdAt`, `DESC`]
+      ]
+    };
+
+    const {count, rows} = await this._Offer.findAndCountAll(options);
+
+    return {offers: rows, count};
+  }
+
   async findAll({comments}) {
 
     const options = {

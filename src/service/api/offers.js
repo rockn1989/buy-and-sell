@@ -11,14 +11,20 @@ module.exports = (app, offerService, commentService) => {
   app.use(`/offers`, route);
 
   route.get(`/`, async (req, res) => {
-    const {limit, comments} = req.query;
+    const {limit, offset, comments} = req.query;
+    let result;
+    if (limit || offset) {
+      result = await offerService.findPage({limit, offset});
+    } else {
+      result = await offerService.findAll({comments});
+    }
 
-    const offers = await offerService.findAll({limit, comments});
-    if (!offers) {
+
+    if (!result) {
       return res.status(HttpCode.FORBIDDEN).send(`Something wrong`);
     }
 
-    return res.status(HttpCode.OK).json(offers);
+    return res.status(HttpCode.OK).json(result);
   });
 
   route.get(`/:offerId`, async (req, res) => {

@@ -39,7 +39,7 @@ class CategoryService {
     return this._Category.findByPk(categoryId, {raw: true});
   }
 
-  async findPage(id) {
+  async findPage({id, limit, offset}) {
     const offerIdByCategory = await this._OfferCategories.findAll({
       attributes: [`OfferId`],
       where: {
@@ -51,6 +51,8 @@ class CategoryService {
     const offersId = offerIdByCategory.map((item) => item.OfferId);
 
     const {count, rows} = await this._Offer.findAndCountAll({
+      limit,
+      offset,
       include: [
         Aliase.CATEGORIES,
         Aliase.COMMENTS

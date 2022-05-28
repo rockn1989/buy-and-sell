@@ -26,13 +26,15 @@ class API {
     });
   }
 
-  async getCategory(id) {
-    return await this._load(`/categories/${id}`);
+  async getCategory(id, {limit, offset}) {
+    return await this._load(`/categories/${id}`, {
+      params: {limit, offset}
+    });
   }
 
-  async getOffers({limit, comments} = {}) {
+  async getOffers({limit, comments, offset} = {}) {
     return this._load(`/offers`, {
-      params: {limit, comments}
+      params: {limit, offset, comments}
     });
   }
 

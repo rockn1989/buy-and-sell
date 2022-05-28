@@ -6,6 +6,7 @@ const {getAPI} = require(`../api`);
 const offersRouter = new Router();
 const api = getAPI();
 const upload = require(`../middleware/upload`);
+const {OFFERS_PER_PAGE} = require(`../../constants`);
 
 offersRouter.get(`/add`, async (req, res) => {
   const categories = await api.getCategories();
@@ -34,8 +35,13 @@ offersRouter.get(`/edit/:id`, async (req, res) => {
 
 offersRouter.get(`/category/:id`, async (req, res) => {
   const {id} = req.params;
-  const offers = await api.getCategory(id);
-  res.render(`pages/category`, {offers});
+
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = OFFERS_PER_PAGE;
+  const offset = (page - 1) * limit;
+
+  const {category, count, offersByCategory} = await api.getCategory(id, {limit, offset});
+  res.render(`pages/category`, {offersByCategory, limit, page, count, category});
 });
 
 offersRouter.post(`/add`, upload.single(`picture`), async (req, res) => {

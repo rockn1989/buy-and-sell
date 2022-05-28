@@ -16,9 +16,13 @@ module.exports = (app, categoryService) => {
 
   route.get(`/:id`, async (req, res) => {
     const {id} = req.params;
+    const {limit, offset} = req.query;
 
-    const {count, offersByCategory} = await categoryService.findPage(id);
-    const category = await categoryService.findOne(id);
+    const [{count, offersByCategory}, category] = await Promise.all([
+      categoryService.findPage({id, limit, offset}),
+      categoryService.findOne(id)
+    ]);
+
     return res.status(HttpCode.OK).json({count, offersByCategory, category});
   });
 };
