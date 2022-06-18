@@ -60,6 +60,14 @@ const CommentSchema = {
   USER_ID: `Некорректный идентификатор пользователя`
 };
 
+const UserSchema = {
+  TEXT_ERROR: `Имя и фамилия не должно содержать специальных символов и цифр`,
+  EMAIL_PATTERN: `Не валидный адрес почты`,
+  PASSWORD_LENGTH: `Пароль содержит меньше 6-ти символов`,
+  PASSWORD_REPEAT: `Пароли не совпадают`,
+  EMPTY_FIELD: `Обязательное поле для заполнения`,
+};
+
 const OFFER_SCHEMA_TITLE_MIN = 10;
 const OFFER_SCHEMA_TITLE_MAX = 100;
 const OFFER_SCHEMA_DESCRIPTION_MIN = 50;
@@ -67,6 +75,10 @@ const OFFER_SCHEMA_DESCRIPTION_MAX = 1000;
 const OFFER_SCHEMA_SUM_MIN = 100;
 
 const COMMETN_TEXT_MIN = 20;
+
+const PASSWORD_MIN = 6;
+
+const REGISTER_FORBIDDEN_ERROR = `Произошла ошибка на сервере. Попробуйте зарегистрироваться позже`;
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -85,10 +97,13 @@ module.exports = {
   Env,
   OfferSchema,
   CommentSchema,
+  UserSchema,
   OFFER_SCHEMA_TITLE_MIN,
   OFFER_SCHEMA_TITLE_MAX,
   OFFER_SCHEMA_DESCRIPTION_MIN,
   OFFER_SCHEMA_DESCRIPTION_MAX,
   OFFER_SCHEMA_SUM_MIN,
-  COMMETN_TEXT_MIN
+  COMMETN_TEXT_MIN,
+  PASSWORD_MIN,
+  REGISTER_FORBIDDEN_ERROR
 };

@@ -84,6 +84,13 @@ class API {
       method: `DELETE`
     });
   }
+
+  async createUser(data) {
+    return this._load(`/user/register`, {
+      method: `POST`,
+      data
+    });
+  }
 }
 
 const defaultAPI = new API(defaultURL, TIMEOUT);
