@@ -44,6 +44,8 @@ block content
                     input#buy-field.visually-hidden(type='radio' name='type' value='buy' checked=(offer.type === `buy`))
                     label.switch__button(for='buy-field') Куплю
                   .switch__item
-                    input#sell-field.visually-hidden(type='radio' name='type' value='sale' checked=(offer.type === `sale`))
+                    input#sell-field.visually-hidden(type='radio' name='type' value='sale' checked=(offer.type === `sell`))
                     label.switch__button(for='sell-field') Продам
+            if errorMessages
+              +showMessages(errorMessages)
             button.form__button.btn.btn--medium.js-button(type='submit') Сохранить

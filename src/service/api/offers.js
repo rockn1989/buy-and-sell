@@ -4,7 +4,11 @@ const {Router} = require(`express`);
 const offerExists = require(`../middleware/offer-exists`);
 const offerValidator = require(`../middleware/offer-validator.js`);
 const commentValidator = require(`../middleware/comment-validator.js`);
+const routeValidator = require(`../middleware/route-validator.js`);
 const {HttpCode} = require(`../../constants`);
+const OfferSchema = require(`../schema/offer-schema`);
+const CommentSchema = require(`../schema/comment-schema`);
+const RouteSchema = require(`../schema/route-schema`);
 
 module.exports = (app, offerService, commentService) => {
   const route = new Router();
@@ -27,7 +31,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(result);
   });
 
-  route.get(`/:offerId`, async (req, res) => {
+  route.get(`/:offerId`, [routeValidator(RouteSchema), offerExists(offerService)], async (req, res) => {
     const {offerId} = req.params;
     const {comments} = req.query;
 
@@ -40,7 +44,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offer);
   });
 
-  route.get(`/:offerId/comments`, [offerExists(offerService)], async (req, res) => {
+  route.get(`/:offerId/comments`, [routeValidator(RouteSchema), offerExists(offerService)], async (req, res) => {
     const {offerId} = req.params;
     let offerComments;
 
@@ -53,13 +57,13 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).json(offerComments);
   });
 
-  route.post(`/`, offerValidator, async (req, res) => {
+  route.post(`/`, offerValidator(OfferSchema), async (req, res) => {
     const result = await offerService.create(req.body);
 
     res.status(HttpCode.CREATED).json(result);
   });
 
-  route.put(`/:offerId`, async (req, res) => {
+  route.put(`/:offerId`, [routeValidator(RouteSchema), offerExists(offerService), offerValidator(OfferSchema)], async (req, res) => {
     const {offerId} = req.params;
     const result = await offerService.update(offerId, req.body);
 
@@ -70,7 +74,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.OK).send(`update`);
   });
 
-  route.delete(`/:offerId`, [offerExists(offerService)], async (req, res) => {
+  route.delete(`/:offerId`, [routeValidator(RouteSchema), offerExists(offerService)], async (req, res) => {
     const {offerId} = req.params;
 
     try {
@@ -82,26 +86,7 @@ module.exports = (app, offerService, commentService) => {
     return res.status(HttpCode.DELETED).send(`deleted`);
   });
 
-  route.post(`/:offerId/comments`, [offerExists(offerService)], async (req, res) => {
-    const {offerId} = req.params;
-
-    const comment = await commentService.create(offerId, req.body);
-
-    return res.status(HttpCode.CREATED).json(comment);
-  });
-
-  route.delete(`/:offerId/comments/:commentId`, [offerExists(offerService)], async (req, res) => {
-    const {offerId, commentId} = req.params;
-    const comment = await commentService.drop(offerId, commentId);
-
-    if (!comment) {
-      return res.status(HttpCode.NOT_FOUND).send(`No comment`);
-    }
-
-    return res.status(HttpCode.DELETED).send(`deleted`);
-  });
-
-  route.post(`/:offerId/comments`, commentValidator, async (req, res) => {
+  route.post(`/:offerId/comments`, [routeValidator(RouteSchema), offerExists(offerService), commentValidator(CommentSchema)], async (req, res) => {
     const {offerId} = req.params;
 
     const comment = await commentService.create(offerId, req.body);
@@ -110,6 +95,18 @@ module.exports = (app, offerService, commentService) => {
       return res.status(HttpCode.NOT_FOUND).send(`not found`);
     }
     return res.status(HttpCode.CREATED).send(comment);
+
+  });
+
+  route.delete(`/:offerId/comments/:commentId`, [routeValidator(RouteSchema), offerExists(offerService)], async (req, res) => {
+    const {offerId, commentId} = req.params;
+    const comment = await commentService.drop(offerId, commentId);
+
+    if (!comment) {
+      return res.status(HttpCode.NOT_FOUND).send(`No comment`);
+    }
+
+    return res.status(HttpCode.DELETED).send(`deleted`);
   });
 
 };

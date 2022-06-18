@@ -150,11 +150,11 @@ describe(`POSITVE`, () => {
     let app;
     const offer = {
       type: `offer`,
-      title: `test`,
-      description: `hellow world`,
+      title: `test test testtesttesttesttesttesttest`,
+      description: `hellow world testtesttesttesttesttesttesttesttesttesttesttesttesttest`,
       sum: 4534,
       picture: `offer-01.jpg`,
-      category: [`Game`]
+      category: [1]
     };
 
     test(`Status code 201 offer when created with validate data`, async () => {
@@ -172,12 +172,11 @@ describe(`POSITVE`, () => {
     let response;
     const newOffer = {
       type: `offer`,
-      title: `test`,
-      description: `hellow world`,
+      title: `test testtesttesttesttesttesttest`,
+      description: `hellow world testtesttesttesttesttesttesttesttesttesttesttesttesttest`,
       sum: 4534,
       picture: `offer-01.jpg`,
       category: [1, 2],
-      userId: 1,
     };
 
     beforeAll(async () => {
@@ -231,8 +230,8 @@ describe(`POSITVE`, () => {
       response = await request(app)
         .post(`/offers/1/comments`)
         .send({
-          id: 1,
-          text: `Hello`
+          userId: 1,
+          text: `Hello testtesttesttesttesttesttest`
         });
     });
 
@@ -267,7 +266,7 @@ describe(`NEGATIVE`, () => {
     beforeAll(async () => {
       app = await createAPI();
       response = await request(app)
-        .get(`/offers/ekjdle`);
+        .get(`/offers/13`);
     });
 
     test(`Status code 404`, () => {
@@ -279,11 +278,11 @@ describe(`NEGATIVE`, () => {
   describe(`OFFERS: POST`, () => {
     const offer = {
       type: `offer`,
-      title: `test`,
-      description: `hellow world`,
+      title: `test hellow world `,
+      description: `hellow world hellow world hellow world hellow world `,
       sum: 4534,
       picture: `offer-01.jpg`,
-      category: [`Game`]
+      category: [1]
     };
 
     let app;
@@ -293,13 +292,16 @@ describe(`NEGATIVE`, () => {
     });
 
     test(`No validate data offer`, async () => {
+      const badOffers = [
+        {...offer, sum: true},
+        {...offer, picture: 12345},
+        {...offer, category: `Котики`}
+      ];
 
-      for (const key of Object.keys(offer)) {
-        const newOffer = {...offer};
-        delete newOffer[key];
+      for await (const badOffer of badOffers) {
         await request(app)
           .post(`/offers`)
-          .send(newOffer)
+          .send(badOffer)
           .expect(HttpCode.BAD_REQUEST);
       }
     });
@@ -313,7 +315,7 @@ describe(`NEGATIVE`, () => {
     beforeAll(async () => {
       app = await createAPI();
       response = await request(app)
-        .put(`/offers/NOEXISTS`);
+        .put(`/offers/55`);
     });
 
     test(`Update no exists offer`, () => {
@@ -329,7 +331,7 @@ describe(`NEGATIVE`, () => {
     beforeAll(async () => {
       app = await createAPI();
       response = await request(app)
-        .delete(`/offers/NOEXISTS`);
+        .delete(`/offers/13`);
     });
 
     test(`Delete no exists offer`, () => {
@@ -345,7 +347,7 @@ describe(`NEGATIVE`, () => {
     beforeAll(async () => {
       app = await createAPI();
       response = await request(app)
-        .get(`/offers/NOEXISTS/comments`);
+        .get(`/offers/13/comments`);
     });
 
     test(`Get no exists comment`, () => {
@@ -360,9 +362,9 @@ describe(`NEGATIVE`, () => {
     beforeAll(async () => {
       app = await createAPI();
       response = await request(app)
-        .post(`/offers/NOEXISTS/comments`)
+        .post(`/offers/13/comments`)
         .send({
-          id: 1,
+          userId: 1,
           text: `Hello`
         });
     });
@@ -381,7 +383,7 @@ describe(`NEGATIVE`, () => {
 
     test(`Status code 404 for no exists offer`, () => {
       return request(app)
-        .delete(`/offers/NOEXISTS/comments/NOEXISTS`)
+        .delete(`/offers/13/comments/13`)
         .expect(HttpCode.NOT_FOUND);
     });
 

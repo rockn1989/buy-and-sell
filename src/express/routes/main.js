@@ -33,14 +33,15 @@ mainRouter.get(`/login`, async (req, res) => {
 mainRouter.get(`/search`, async (req, res) => {
   const {query: searchValue} = req.query;
   try {
-    const [results, offers] = await Promise.all([
+    const [results, {offers}] = await Promise.all([
       api.search(searchValue),
       api.getOffers({limit: OFFERS_PER_PAGE})
     ]);
 
     res.render(`pages/search-result`, {searchValue, results, offers});
   } catch (err) {
-    const offers = await api.getOffers({limit: OFFERS_PER_PAGE});
+
+    const {offers} = await api.getOffers({limit: OFFERS_PER_PAGE});
     res.render(`pages/search-result`, {results: [], offers});
   }
 });

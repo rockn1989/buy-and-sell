@@ -2,15 +2,18 @@
 
 const {HttpCode} = require(`../../constants`);
 
-const offerKeys = [`category`, `description`, `picture`, `title`, `type`, `sum`];
 
-const offerValidator = (req, res, next) => {
+const offerValidator = (schema) => async (req, res, next) => {
   const newOffer = req.body;
-  const keys = Object.keys(newOffer);
-  const keyExists = offerKeys.every((key) => keys.includes(key));
 
-  if (!keyExists) {
-    return res.status(HttpCode.BAD_REQUEST).send(`bad request`);
+  try {
+    await schema.validateAsync(newOffer, {abortEarly: false});
+  } catch (e) {
+    const {details} = e;
+    const errorsList = details.map((err) => err.message);
+
+    return res.status(HttpCode.BAD_REQUEST)
+      .send({errorsList});
   }
 
   return next();

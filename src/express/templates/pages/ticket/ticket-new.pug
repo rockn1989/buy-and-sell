@@ -4,7 +4,7 @@ block content
   main.page-content
     section.ticket-form
       .ticket-form__wrapper
-        h1.ticket-form__title Новая публикация #{err}
+        h1.ticket-form__title Новая публикация
         .ticket-form__tile
           form.ticket-form__form.form(action='/offers/add' method='post' enctype='multipart/form-data' autocomplete='off')
             .ticket-form__avatar-container.js-preview-container
@@ -26,9 +26,9 @@ block content
                   label(for='comment-field') Описание
                   span Обязательное поле
               .ticket-form__row
-                select#category-field.form__select.js-multiple-select(name='category' data-label='Выбрать категорию публикации')
+                select#category-field.form__select.js-multiple-select(name='category' data-label='Выбрать категорию публикации' multiple='')
                   each category of categories
-                    option(value=category.id) #{category.name}
+                    option(value=`${category.id}`) #{category.name}
               .ticket-form__row
                 .form__field.form__field--price
                   input#price-field.js-field.js-price(type='number' name='sum' min='1' required='')
@@ -41,4 +41,6 @@ block content
                   .switch__item
                     input#sell-field.visually-hidden(type='radio' name='type' value='sell')
                     label.switch__button(for='sell-field') Продам
+            if errorMessages
+              +showMessages(errorMessages)
             button.form__button.btn.btn--medium.js-button(type='submit' disabled='') Опубликовать

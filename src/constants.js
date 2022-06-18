@@ -39,6 +39,35 @@ const HttpCode = {
   INTERNAL_SERVER_ERROR: 500
 };
 
+const OfferSchema = {
+  TITLE_MIN: `Заголовок должен содержать минимум 10 символов`,
+  TITLE_MAX: `Заголовок не должен содержать более 100 символов`,
+  TITLE_EMPTY: `Заголовок не должен быть пустым`,
+  TYPE_EMPTY: `Не выбран тип объявления`,
+  DESCRIPTION_MIN: `Текст должен содержать минимум 50 символов`,
+  DESCRIPTION_MAX: `Текст не должен содержать более 1000 символов`,
+  DESCRIPTION_EMPTY: `Текст не должен быть пустым`,
+  SUM_MIN: `Минимальная стоимость 100`,
+  REQUIRED: `Это поле обязательно для заполнения`,
+  CATEGORY: `Не выбрана ни одна категория`,
+  PICTURE_PATTERN: `Неверный тип изображения. PNG или JPG`,
+  PICTURE_NOT_EMPTY: `Не выбрано изображение`
+};
+
+const CommentSchema = {
+  TEXT_MIN: `Текст комментария должен быть не менее 20 символов`,
+  TEXT_EMPTY: `Нельзя отправить пустой комментарий`,
+  USER_ID: `Некорректный идентификатор пользователя`
+};
+
+const OFFER_SCHEMA_TITLE_MIN = 10;
+const OFFER_SCHEMA_TITLE_MAX = 100;
+const OFFER_SCHEMA_DESCRIPTION_MIN = 50;
+const OFFER_SCHEMA_DESCRIPTION_MAX = 1000;
+const OFFER_SCHEMA_SUM_MIN = 100;
+
+const COMMETN_TEXT_MIN = 20;
+
 module.exports = {
   DEFAULT_COMMAND,
   DEFAULT_PORT,
@@ -53,5 +82,13 @@ module.exports = {
   PATH_OF_API_LOG,
   ExitCode,
   HttpCode,
-  Env
+  Env,
+  OfferSchema,
+  CommentSchema,
+  OFFER_SCHEMA_TITLE_MIN,
+  OFFER_SCHEMA_TITLE_MAX,
+  OFFER_SCHEMA_DESCRIPTION_MIN,
+  OFFER_SCHEMA_DESCRIPTION_MAX,
+  OFFER_SCHEMA_SUM_MIN,
+  COMMETN_TEXT_MIN
 };

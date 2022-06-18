@@ -2,11 +2,17 @@
 
 const {HttpCode} = require(`../../constants`);
 
-const commentValidator = (req, res, next) => {
+const commentValidator = (schema) => async (req, res, next) => {
   const comment = req.body;
 
-  if (comment.length === 0) {
-    return res.status(HttpCode.BAD_REQUEST).send(`Comment is empty`);
+  try {
+    await schema.validateAsync(comment, {abortEarly: false});
+  } catch (e) {
+    const {details} = e;
+    const errorsList = details.map((err) => err.message);
+
+    return res.status(HttpCode.BAD_REQUEST)
+      .send(errorsList);
   }
 
   return next();
