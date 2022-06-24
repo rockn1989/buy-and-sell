@@ -55,6 +55,12 @@ class API {
     return this._load(`/comments`);
   }
 
+  async getUserComments(userId) {
+    return this._load(`/offers/comments`, {
+      params: {userId}
+    });
+  }
+
   async deleteComment(offerId, commentId) {
     return this._load(`/offers/${offerId}/comments/${commentId}`, {
       method: `DELETE`
@@ -89,6 +95,21 @@ class API {
     return this._load(`/user/register`, {
       method: `POST`,
       data
+    });
+  }
+
+  async auth(data) {
+    return this._load(`/user/auth`, {
+      method: `POST`,
+      data
+    });
+  }
+
+  async refresh(token) {
+
+    return this._load(`/user/refresh`, {
+      method: `POST`,
+      data: {token},
     });
   }
 }

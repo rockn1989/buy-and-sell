@@ -4,6 +4,7 @@ block content
   main.page-content
     section.sign-up
       form.sign-up__form.form(action='/sign-up' method='post' enctype='multipart/form-data' autocomplete='off')
+        input(type="hidden" name="_csrf" value=csrfToken)
         .sign-up__title
           h2 Регистрация
           a.sign-up__link(href='/login') Вход

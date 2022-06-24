@@ -1,6 +1,12 @@
 'use strict';
 const path = require(`path`);
 const express = require(`express`);
+const cookieParser = require(`cookie-parser`);
+const helmet = require(`helmet`);
+const session = require(`express-session`);
+const sequelize = require(`../service/lib/sequelize`);
+const SequelizeStore = require(`connect-session-sequelize`)(session.Store);
+
 const mainRouter = require(`./routes/main`);
 const myRouter = require(`./routes/my`);
 const offersRouter = require(`./routes/offers`);
@@ -9,8 +15,36 @@ const {HttpCode} = require(`../constants`);
 const PUBLIC_DIR = `public`;
 const UPLOAD_DIR = `upload`;
 
+const {SESSION_SECRET} = process.env;
+if (!SESSION_SECRET) {
+  throw new Error(`SESSION_SECRET environment variable is not defined`);
+}
+
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+  expiration: 600000,
+  checkExpirationInterval: 6000
+});
+
+sequelize.sync({force: false});
+
 const app = express();
+
+app.use(helmet());
 app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
+
+app.use(session({
+  secret: SESSION_SECRET,
+  store: sessionStore,
+  resave: false,
+  proxy: true,
+  saveUninitialized: false,
+  name: `s_user`,
+  cookie: {
+    maxAge: 600000,
+  }
+}));
 
 app.use(`/`, mainRouter);
 app.use(`/my`, myRouter);

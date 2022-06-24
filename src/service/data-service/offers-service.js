@@ -39,7 +39,7 @@ class OfferService {
       }],
       order: [
         [`createdAt`, `DESC`]
-      ]
+      ],
     };
 
     if (comments) {
@@ -108,6 +108,33 @@ class OfferService {
     }
 
     return offer;
+  }
+
+  async findUserOffers(userId) {
+    // const comments = await this._Comment.findAll({
+    //   include: [Aliase.OFFERS],
+    //   where: {
+    //     userId
+    //   }
+    // });
+    const comments = await this._Offer.findAll({
+      include: [{
+        model: this._Comment,
+        as: Aliase.COMMENTS,
+        include: [{
+          model: this._User,
+          as: Aliase.USERS,
+          attributes: {
+            exclude: [`passwordHash`]
+          }
+        }],
+        where: {
+          userId
+        }
+      }],
+    });
+    console.log(comments);
+    return comments;
   }
 
   async create(offer) {

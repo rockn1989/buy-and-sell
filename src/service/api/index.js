@@ -13,6 +13,7 @@ const CategoryService = require(`../data-service/category-service`);
 const CommentService = require(`../data-service/comments-service`);
 const SearchService = require(`../data-service/search-service`);
 const UserService = require(`../data-service/user-service`);
+const TokenService = require(`../data-service/token-service`);
 
 defineModels(sequelize);
 
@@ -22,7 +23,7 @@ const app = new Router();
   offers(app, new OfferService(sequelize), new CommentService(sequelize));
   category(app, new CategoryService(sequelize));
   search(app, new SearchService(sequelize));
-  user(app, new UserService(sequelize));
+  user(app, new UserService(sequelize), new TokenService(sequelize));
 })();
 
 module.exports = app;

@@ -37,19 +37,10 @@ block content
                     span.category-tile__label #{category.name}
         .ticket__comments
           h2.ticket__subtitle Коментарии
-          .ticket__comment-form
-            form.form.comment-form(action=`/offers/${offer.id}` method='post')
-              .comment-form__header
-                a.comment-form__avatar.avatar(href='#')
-                  img(src='/img/avatar.jpg' srcset='/img/avatar@2x.jpg 2x' alt='Аватар пользователя')
-                p.comment-form__author Вам слово
-              .comment-form__field
-                .form__field
-                  textarea#comment-field.js-field(name='comment' cols='30' rows='10' maxlength='400' minlength='20') Нормальное вообще кресло! А как насч
-                  label(for='comment-field') Текст комментария
-                  span Обязательное поле
-              +showMessages(errorMessage)
-              button.comment-form__button.btn.btn--white.js-button(type='submit' disabled='') Отправить
+          if user
+            include ../../partials/comments-form.pug
+          else
+            include ../../partials/comments-warning.pug
           .ticket__comments-list
             ul.comments-list
               if offer.comments && offer.comments.length >= 1

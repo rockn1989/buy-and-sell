@@ -3,21 +3,36 @@
 const {Router} = require(`express`);
 const {getAPI} = require(`../api`);
 const myRouter = new Router();
-
+const csrf = require(`csurf`);
+const checkAuth = require(`../middleware/check-auth`);
+const privateRoute = require(`../middleware/private-route`);
 const api = getAPI();
+const csrfProtection = csrf();
 
-myRouter.get(`/`, async (req, res) => {
+myRouter.get(`/`, [privateRoute, csrfProtection], async (req, res) => {
+  const {user} = req.session;
   const offers = await api.getOffers();
 
-  res.render(`pages/my-tickets`, {offers});
+  res.render(`pages/my-tickets`, {offers, user, csrfToken: req.csrfToken()});
 });
 
-myRouter.get(`/comments`, async (req, res) => {
-  const offers = await api.getOffers({comments: true});
-  res.render(`pages/comments`, {offers});
+myRouter.get(`/comments`, [checkAuth, csrfProtection], async (req, res) => {
+  const {user} = req.session;
+
+  let offers;
+
+  if (user.roleId === 1) {
+    offers = await api.getUserComments(user.id);
+  }
+
+  if (user.roleId !== 1) {
+    offers = await api.getOffers({comments: true});
+  }
+
+  res.render(`pages/comments`, {offers, user, csrfToken: req.csrfToken()});
 });
 
-myRouter.post(`/:id`, async (req, res) => {
+myRouter.post(`/:id`, [privateRoute, csrfProtection], async (req, res) => {
   const {id} = req.params;
 
   try {
@@ -26,7 +41,7 @@ myRouter.post(`/:id`, async (req, res) => {
   } catch (err) {
     const errorMessage = err.message;
     const offers = await api.getOffers({comments: false});
-    res.render(`pages/my-tickets`, {offers, errorMessage});
+    res.render(`pages/my-tickets`, {offers, errorMessage, csrfToken: req.csrfToken()});
   }
 });
 

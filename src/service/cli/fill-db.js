@@ -5,6 +5,7 @@ const initDb = require(`../lib/init-db`);
 const {getLogger} = require(`../lib/logger`);
 const logger = getLogger({name: `filldb`});
 const chalk = require(`chalk`);
+const bcrypt = require(`bcrypt`);
 
 const {getRandomInt, shuffle, getRandomPictureName, getRandomDate, getRandomSubarray} = require(`../../utils`);
 const {
@@ -23,14 +24,14 @@ const users = [
     firstname: `Иван`,
     lastname: `Иванов`,
     email: `ivanov@example.com`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar1.jpg`,
     roleId: `1`
   }, {
     firstname: `Пётр`,
     lastname: `Петров`,
     email: `petrov@example.com`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar2.jpg`,
     roleId: `2`
   },
@@ -38,7 +39,7 @@ const users = [
     firstname: `Артем`,
     lastname: `Рябков`,
     email: `gold_100@bk.ru`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar2.jpg`,
     roleId: `3`
   }

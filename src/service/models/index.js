@@ -8,6 +8,7 @@ const defineUser = require(`./user`);
 const defineOffer = require(`./offer`);
 const defineComment = require(`./comment`);
 const defineOfferCategories = require(`./offer-categories`);
+const defineToken = require(`./token`);
 
 const define = (sequelize) => {
   const Category = defineCategory(sequelize);
@@ -16,6 +17,7 @@ const define = (sequelize) => {
   const Offer = defineOffer(sequelize);
   const Comment = defineComment(sequelize);
   const OfferCategories = defineOfferCategories(sequelize);
+  const Token = defineToken(sequelize);
 
   User.hasMany(Offer, {
     as: Aliase.OFFERS,
@@ -78,7 +80,8 @@ const define = (sequelize) => {
     User,
     Offer,
     Comment,
-    OfferCategories
+    OfferCategories,
+    Token
   };
 };
 

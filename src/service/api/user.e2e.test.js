@@ -4,6 +4,7 @@ const request = require(`supertest`);
 const express = require(`express`);
 const Sequelize = require(`sequelize`);
 const initDb = require(`../lib/init-db`);
+const bcrypt = require(`bcrypt`);
 
 const user = require(`./user`);
 const UserService = require(`../data-service/user-service`);
@@ -91,14 +92,14 @@ const mockUsers = [
     firstname: `Иван`,
     lastname: `Иванов`,
     email: `ivanov@example.com`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar1.jpg`,
     roleId: `1`
   }, {
     firstname: `Пётр`,
     lastname: `Петров`,
     email: `petrov@example.com`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar2.jpg`,
     roleId: `2`
   },
@@ -106,7 +107,7 @@ const mockUsers = [
     firstname: `Артем`,
     lastname: `Рябков`,
     email: `gold_100@bk.ru`,
-    passwordHash: `5f4dcc3b5aa765d61d8327deb882cf99`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
     avatar: `avatar2.jpg`,
     roleId: `3`
   }
@@ -217,5 +218,58 @@ describe(`Email: User error status 400`, () => {
       .post(`/user/register`)
       .send(userData)
       .expect(HttpCode.BAD_REQUEST);
+  });
+});
+
+describe(`API authenicate user if data is valid`, () => {
+  const validData = {
+    email: `ivanov@example.com`,
+    password: `123456`
+  };
+
+  let response;
+
+  beforeAll(async () => {
+    const app = await createAPI();
+    response = await request(app)
+      .post(`/user/auth`)
+      .send(validData);
+  });
+
+  test(`Status code is 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
+  test(`User firstname is Иван`, () => expect(response.body.firstname).toBe(`Иван`));
+
+});
+
+
+describe(`API refuses to authenicate user if data is invalid`, () => {
+  let app;
+
+  beforeAll(async () => {
+    app = await createAPI();
+  });
+
+  test(`If email is incorrect status is 401`, async () => {
+    const badData = {
+      email: `non-exists`,
+      password: `123456`
+    };
+
+    await request(app)
+      .post(`/user/auth`)
+      .send(badData)
+      .expect(HttpCode.UNAUTHORIZED);
+  });
+
+  test(`If password does not match status is 401`, async () => {
+    const badData = {
+      email: `ivanov@example.com`,
+      password: `12345612`
+    };
+
+    await request(app)
+      .post(`/user/auth`)
+      .send(badData)
+      .expect(HttpCode.UNAUTHORIZED);
   });
 });

@@ -27,7 +27,8 @@ class User {
       userExists = await this._User.findOne({
         where: {
           email
-        }
+        },
+        raw: true
       });
     } catch (error) {
       return false;
