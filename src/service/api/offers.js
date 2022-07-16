@@ -15,14 +15,23 @@ module.exports = (app, offerService, commentService) => {
   app.use(`/offers`, route);
 
   route.get(`/`, async (req, res) => {
-    const {limit, offset, comments} = req.query;
+    const {limit, offset, comments, topOffers} = req.query;
+    const {id, roleId} = req.body;
 
     let result;
 
     if (limit || offset) {
       result = await offerService.findPage({limit, offset});
     } else {
-      result = await offerService.findAll({comments});
+      result = await offerService.findAll({comments, id, roleId});
+    }
+
+    if (topOffers) {
+      const resultTopOffers = await offerService.findTopOffers({limit});
+      result = {
+        ...result,
+        resultTopOffers
+      };
     }
 
 
@@ -75,10 +84,12 @@ module.exports = (app, offerService, commentService) => {
 
   route.put(`/:offerId`, [routeValidator(RouteSchema), offerExists(offerService), offerValidator(OfferSchema)], async (req, res) => {
     const {offerId} = req.params;
-    const result = await offerService.update(offerId, req.body);
+    const {offerData, userId} = req.body;
 
-    if (!result) {
-      return res.status(HttpCode.NOT_FOUND).send(`Not found`);
+    const result = await offerService.update(offerId, userId, offerData);
+
+    if (!result.errorStatus) {
+      return res.status(result.status).send({errorsList: [result.statusText]});
     }
 
     return res.status(HttpCode.OK).send(`update`);
@@ -109,13 +120,18 @@ module.exports = (app, offerService, commentService) => {
 
   route.delete(`/:offerId/comments/:commentId`, [routeValidator(RouteSchema), offerExists(offerService)], async (req, res) => {
     const {offerId, commentId} = req.params;
-    const comment = await commentService.drop(offerId, commentId);
+    const {user} = req.body;
+    const comment = await commentService.drop(offerId, commentId, user);
 
-    if (!comment) {
-      return res.status(HttpCode.NOT_FOUND).send(`No comment`);
+    if (comment.status === HttpCode.UNAUTHORIZED) {
+      return res.status(HttpCode.NOT_FOUND).send(comment.statusText);
     }
 
-    return res.status(HttpCode.DELETED).send(`deleted`);
+    if (comment.status === HttpCode.NOT_FOUND) {
+      return res.status(HttpCode.NOT_FOUND).send(comment.statusText);
+    }
+
+    return res.status(HttpCode.DELETED).send(comment.statusText);
   });
 
 };

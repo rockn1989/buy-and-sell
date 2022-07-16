@@ -25,14 +25,22 @@ const users = [
     lastname: `Иванов`,
     email: `ivanov@example.com`,
     passwordHash: bcrypt.hashSync(`123456`, 10),
-    avatar: `avatar1.jpg`,
+    avatar: `avatar01.jpg`,
     roleId: `1`
   }, {
     firstname: `Пётр`,
     lastname: `Петров`,
     email: `petrov@example.com`,
     passwordHash: bcrypt.hashSync(`123456`, 10),
-    avatar: `avatar2.jpg`,
+    avatar: `avatar02.jpg`,
+    roleId: `2`
+  },
+  {
+    firstname: `Алексей`,
+    lastname: `Ычь`,
+    email: `alex@example.com`,
+    passwordHash: bcrypt.hashSync(`123456`, 10),
+    avatar: `avatar03.jpg`,
     roleId: `2`
   },
   {
@@ -40,7 +48,7 @@ const users = [
     lastname: `Рябков`,
     email: `gold_100@bk.ru`,
     passwordHash: bcrypt.hashSync(`123456`, 10),
-    avatar: `avatar2.jpg`,
+    avatar: `avatar04.jpg`,
     roleId: `3`
   }
 ];

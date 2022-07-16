@@ -11,7 +11,9 @@ const csrfProtection = csrf();
 
 myRouter.get(`/`, [privateRoute, csrfProtection], async (req, res) => {
   const {user} = req.session;
-  const offers = await api.getOffers();
+  const {id, roleId} = user;
+
+  const offers = await api.getOffers({id, roleId});
 
   res.render(`pages/my-tickets`, {offers, user, csrfToken: req.csrfToken()});
 });
@@ -29,7 +31,10 @@ myRouter.get(`/comments`, [checkAuth, csrfProtection], async (req, res) => {
     offers = await api.getOffers({comments: true});
   }
 
-  res.render(`pages/comments`, {offers, user, csrfToken: req.csrfToken()});
+  const errorMessage = req.session.user.error || null;
+
+  delete req.session.user.error;
+  res.render(`pages/comments`, {offers, errorMessage, user, csrfToken: req.csrfToken()});
 });
 
 myRouter.post(`/:id`, [privateRoute, csrfProtection], async (req, res) => {

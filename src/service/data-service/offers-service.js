@@ -1,6 +1,9 @@
 'use strict';
 
+const {Sequelize} = require(`sequelize`);
 const Aliase = require(`../models/aliase`);
+
+const {OFFERS_PER_PAGE, HttpCode} = require(`../../constants`);
 
 class OfferService {
   constructor(sequelize) {
@@ -30,7 +33,7 @@ class OfferService {
     return {offers: rows, count};
   }
 
-  async findAll({comments}) {
+  async findAll({comments, id, roleId}) {
 
     const options = {
       include: [{
@@ -57,6 +60,12 @@ class OfferService {
       options.order = [
         [Aliase.COMMENTS, `createdAt`, `DESC`]
       ];
+    }
+
+    if (id && roleId === 2) {
+      options.where = {
+        userId: id
+      };
     }
 
     const offers = await this._Offer.findAll(options);
@@ -111,12 +120,7 @@ class OfferService {
   }
 
   async findUserOffers(userId) {
-    // const comments = await this._Comment.findAll({
-    //   include: [Aliase.OFFERS],
-    //   where: {
-    //     userId
-    //   }
-    // });
+
     const comments = await this._Offer.findAll({
       include: [{
         model: this._Comment,
@@ -133,8 +137,51 @@ class OfferService {
         }
       }],
     });
-    console.log(comments);
+
     return comments;
+  }
+
+  async findTopOffers() {
+
+    let offers;
+
+    const options = {
+      attributes: {
+        include: [
+          [Sequelize.fn(`COUNT`, Sequelize.col(`comments.id`)), `commentsCount`]
+        ]
+      },
+      include: [
+        {
+          model: this._Comment,
+          as: Aliase.COMMENTS,
+          attributes: []
+        },
+        {
+          model: this._Category,
+          as: Aliase.CATEGORIES,
+          attributes: [`id`, `name`]
+        }
+      ],
+      group: [
+        `Offer.id`,
+        `categories.id`,
+        `categories->OfferCategories`,
+        `categories->OfferCategories.OfferId`,
+        `categories->OfferCategories.CategoryId`
+      ],
+      order: [
+        [Sequelize.fn(`COUNT`, Sequelize.col(`comments.id`)), `DESC`]
+      ]
+    };
+
+    try {
+      offers = await this._Offer.findAll(options);
+    } catch (err) {
+      return false;
+    }
+
+    return offers.map((item) => item.get()).filter((item) => item.commentsCount > 0).slice(0, OFFERS_PER_PAGE);
   }
 
   async create(offer) {
@@ -168,14 +215,27 @@ class OfferService {
     return offerId;
   }
 
-  async update(offerId, offerData) {
+  async update(offerId, userId, offerData) {
     let affectedRow;
     let updateOffer;
 
     try {
-      affectedRow = await this._Offer.update(offerData, {
-        where: {id: offerId}
+      [affectedRow] = await this._Offer.update(offerData, {
+        where: {
+          id: offerId,
+          userId
+        }
       });
+
+
+      if (!affectedRow) {
+        return {
+          status: HttpCode.UNAUTHORIZED,
+          statusText: `You cant edit offer`,
+          errorStatus: !!affectedRow
+        };
+      }
+
     } catch (err) {
       return false;
     }
@@ -187,10 +247,18 @@ class OfferService {
 
       await updateOffer.setCategories(offerData.category);
     } catch (err) {
-      return false;
+      return {
+        status: HttpCode.FORBIDDEN,
+        statusText: `Something wrong...`,
+        errorStatus: false
+      };
     }
 
-    return affectedRow;
+    return {
+      status: HttpCode.OK,
+      statusText: `update`,
+      errorStatus: true
+    };
   }
 }
 

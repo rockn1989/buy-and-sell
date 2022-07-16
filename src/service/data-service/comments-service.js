@@ -1,5 +1,7 @@
 'use strict';
 
+const {HttpCode} = require(`../../constants`);
+
 class CommentService {
   constructor(sequelize) {
     this._Offer = sequelize.models.Offer;
@@ -25,13 +27,31 @@ class CommentService {
     return comment;
   }
 
-  async drop(offerId, commentId) {
+  async drop(offerId, commentId, user) {
 
     try {
-      const offer = await this._Offer.findByPk(offerId);
+      let offerByUser;
 
-      if (!offer) {
-        return false;
+      if (user.roleId === 3) {
+        offerByUser = await this._Offer.findOne({
+          where: {
+            id: offerId,
+          }
+        });
+      } else {
+        offerByUser = await this._Offer.findOne({
+          where: {
+            id: offerId,
+            userId: user.id
+          }
+        });
+      }
+
+      if (!offerByUser) {
+        return {
+          status: HttpCode.UNAUTHORIZED,
+          statusText: `You cant deleting comment`
+        };
       }
 
       const commentRow = await this._Comment.destroy({
@@ -40,7 +60,10 @@ class CommentService {
         }
       });
 
-      return commentRow;
+      return {
+        status: commentRow === 1 ? HttpCode.DELETED : HttpCode.NOT_FOUND,
+        statusText: commentRow === 1 ? `deleted` : `No comment`
+      };
     } catch (err) {
       return false;
     }

@@ -32,9 +32,10 @@ class API {
     });
   }
 
-  async getOffers({limit, comments, offset} = {}) {
+  async getOffers({limit, comments, offset, topOffers, id, roleId} = {}) {
     return this._load(`/offers`, {
-      params: {limit, offset, comments}
+      params: {limit, offset, comments, topOffers, id, roleId},
+      data: {id, roleId}
     });
   }
 
@@ -61,9 +62,10 @@ class API {
     });
   }
 
-  async deleteComment(offerId, commentId) {
+  async deleteComment(offerId, commentId, user) {
     return this._load(`/offers/${offerId}/comments/${commentId}`, {
-      method: `DELETE`
+      method: `DELETE`,
+      data: {user}
     });
   }
 
@@ -78,10 +80,13 @@ class API {
     });
   }
 
-  async editOffer(id, offerData) {
+  async editOffer(id, offerData, userId) {
     return this._load(`/offers/${id}`, {
       method: `PUT`,
-      data: offerData
+      data: {
+        offerData,
+        userId
+      }
     });
   }
 

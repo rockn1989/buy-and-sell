@@ -4,7 +4,7 @@ const {HttpCode} = require(`../../constants`);
 
 
 const offerValidator = (schema) => async (req, res, next) => {
-  const newOffer = req.body;
+  const {offerData: newOffer} = req.body;
 
   try {
     await schema.validateAsync(newOffer, {abortEarly: false});

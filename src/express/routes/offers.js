@@ -25,7 +25,6 @@ offersRouter.get(`/:id`, csrfProtection, async (req, res, next) => {
   const {user} = req.session;
   try {
     const offer = await api.getOffer(id, {comments: true});
-
     res.render(`pages/ticket/ticket-detail`, {offer, user, csrfToken: req.csrfToken()});
   } catch (err) {
     redirectHandler(err, req, res, next);
@@ -35,6 +34,7 @@ offersRouter.get(`/:id`, csrfProtection, async (req, res, next) => {
 offersRouter.get(`/edit/:id`, [privateRoute, csrfProtection], async (req, res, next) => {
   const {id} = req.params;
   const {user} = req.session;
+
   try {
     const [offer, categories] = await Promise.all([
       api.getOffer(id),
@@ -85,6 +85,8 @@ offersRouter.post(`/add`, [privateRoute, upload.single(`picture`), csrfProtectio
 
 offersRouter.post(`/edit/:id`, [privateRoute, upload.single(`picture`), csrfProtection], async (req, res) => {
   const {id} = req.params;
+  const {user} = req.session;
+  const {id: userId} = user;
 
   const offerData = {
     title: req.body.title,
@@ -96,7 +98,7 @@ offersRouter.post(`/edit/:id`, [privateRoute, upload.single(`picture`), csrfProt
   };
 
   try {
-    await api.editOffer(id, offerData);
+    await api.editOffer(id, offerData, userId);
     res.redirect(`/my`);
   } catch (err) {
     const {errorsList: errorMessages} = err.response.data;
@@ -129,13 +131,14 @@ offersRouter.post(`/:offerId`, [checkAuth, csrfProtection], async (req, res) => 
 
 offersRouter.post(`/:offerId/comments/:commentId`, [checkAuth, csrfProtection], async (req, res) => {
   const {offerId, commentId} = req.params;
+  const {user} = req.session;
 
   try {
-    await api.deleteComment(offerId, commentId);
+    await api.deleteComment(offerId, commentId, user);
     res.redirect(`/my/comments`);
   } catch (err) {
-    const offer = await api.getOffer(offerId);
-    res.render(`pages/ticket/ticket-detail`, {offer, csrfToken: req.csrfToken()});
+    req.session.user.error = err.response.data;
+    res.redirect(`/my/comments`);
   }
 });
 

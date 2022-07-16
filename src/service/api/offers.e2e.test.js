@@ -170,7 +170,7 @@ describe(`POSITVE`, () => {
   describe(`OFFERS: PUT`, () => {
     let app;
     let response;
-    const newOffer = {
+    const offerData = {
       type: `offer`,
       title: `test testtesttesttesttesttesttest`,
       description: `hellow world testtesttesttesttesttesttesttesttesttesttesttesttesttest`,
@@ -183,7 +183,7 @@ describe(`POSITVE`, () => {
       app = await createAPI();
       response = await request(app)
         .put(`/offers/1`)
-        .send(newOffer);
+        .send({offerData, userId: 1});
     });
 
     test(`Update offer`, () => {
@@ -301,7 +301,7 @@ describe(`NEGATIVE`, () => {
       for await (const badOffer of badOffers) {
         await request(app)
           .post(`/offers`)
-          .send(badOffer)
+          .send({offerData: badOffer})
           .expect(HttpCode.BAD_REQUEST);
       }
     });

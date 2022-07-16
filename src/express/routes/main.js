@@ -16,13 +16,18 @@ mainRouter.get(`/`, async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = OFFERS_PER_PAGE;
   const offset = (page - 1) * limit;
+  const topOffers = true;
 
-  const [{offers, count}, categories] = await Promise.all([
-    api.getOffers({limit, page, offset}),
+  const [{offers, resultTopOffers, count}, categories] = await Promise.all([
+    api.getOffers({limit, page, offset, topOffers}),
     api.getCategories({count: true})
   ]);
 
-  res.render(`pages/main`, {offers, categories, limit, page, count, user});
+  if (offers.length === 0) {
+    res.render(`pages/main-empty`, {user});
+  }
+
+  res.render(`pages/main`, {offers, resultTopOffers, categories, limit, page, count, user});
 });
 
 mainRouter.get(`/sign-up`, csrfProtection, async (req, res) => {
@@ -56,17 +61,9 @@ mainRouter.post(`/login`, csrfProtection, async (req, res) => {
 });
 
 mainRouter.get(`/logout`, (req, res) => {
-  const sid = req.cookies.s_user.replace(`s:`, ``);
-  req.session.destroy(sid, () => {
-    res.clearCookie(`s_user`);
-
+  req.session.destroy(() => {
+    res.redirect(`/login`);
   });
-  res.redirect(`/login`);
-
-});
-
-mainRouter.get(`/sign-up`, async (req, res) => {
-  res.render(`pages/sign-up`);
 });
 
 mainRouter.post(`/sign-up`, [upload.single(`avatar`), csrfProtection], async (req, res) => {
