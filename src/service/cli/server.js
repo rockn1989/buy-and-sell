@@ -13,10 +13,10 @@ const {DEFAULT_PORT, HttpCode, ExitCode} = require(`../../constants`);
 const logger = getLogger({name: `api`});
 
 const app = express();
-const httpServer = createServer(app);
-const io = socket(httpServer);
+//const httpServer = createServer(app);
+//const io = socket(httpServer);
 
-app.locals.socketio = io;
+//app.locals.socketio = io;
 
 app.use(express.json());
 
@@ -56,8 +56,8 @@ module.exports = {
 
     logger.info(chalk.green(`Connection to database established`));
 
-    httpServer
-      .listen(port, () => {
+    app
+      .listen(process.env.PORT || DEFAULT_PORT, () => {
         logger.info(`Waiting to connect on port: ${port}`);
       }).on(`error`, ({message}) => {
         logger.error(`Error create server: ${message}`);

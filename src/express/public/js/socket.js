@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const SERVER_URL = `http://localhost:3000`;
+  const SERVER_URL = `https://rock-n-buy-and-sell.herokuapp.com`;
   const COUNT_OFFERS_ELEMENT = 8;
 
   const socket = io(SERVER_URL);

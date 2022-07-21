@@ -72,4 +72,6 @@ app.use((req, res) => {
 app.set(`views`, path.resolve(__dirname, `templates`));
 app.set(`view engine`, `pug`);
 
-app.listen(8080);
+console.log(`error express`);
+
+app.listen(process.env.CLIENT_SIDE_PORT || 8080);

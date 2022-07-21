@@ -2,10 +2,13 @@
 
 const {Server} = require(`socket.io`);
 
+const host = process.env.NODE_ENV === `development` ?
+  `http://localhost:8080` : `https://rock-n-buy-and-sell.herokuapp.com`;
+
 module.exports = (server) => {
   return new Server(server, {
     cors: {
-      origin: [`http://localhost:8080`],
+      origin: [host],
       methods: `GET`
     }
   });

@@ -9,8 +9,7 @@ if (variablesNotExists) {
   throw new Error(`Не установлены все переменные окружения для подключения к БД`);
 }
 
-module.exports = new Sequelize(
-    DB_NAME, DB_USER, DB_PASSWORD, {
+const options = {
       host: DB_HOST,
       dialect: DB_DIALECT,
       pool: {
@@ -21,4 +20,18 @@ module.exports = new Sequelize(
       },
       logging: false
     }
+
+if (process.env.NODE_ENV === 'production') {
+  options.dialectOptions = {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  };
+}
+
+console.log(DB_HOST);
+
+module.exports = new Sequelize(
+    DB_NAME, DB_USER, DB_PASSWORD, {...options}
 );
