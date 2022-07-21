@@ -1,6 +1,8 @@
 'use strict';
 
 const express = require(`express`);
+const {createServer} = require(`http`);
+const socket = require(`../lib/socket`);
 const sequelize = require(`../lib/sequelize`);
 
 const chalk = require(`chalk`);
@@ -11,6 +13,11 @@ const {DEFAULT_PORT, HttpCode, ExitCode} = require(`../../constants`);
 const logger = getLogger({name: `api`});
 
 const app = express();
+const httpServer = createServer(app);
+const io = socket(httpServer);
+
+app.locals.socketio = io;
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -49,7 +56,7 @@ module.exports = {
 
     logger.info(chalk.green(`Connection to database established`));
 
-    app
+    httpServer
       .listen(port, () => {
         logger.info(`Waiting to connect on port: ${port}`);
       }).on(`error`, ({message}) => {

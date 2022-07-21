@@ -10,6 +10,8 @@ const OfferSchema = require(`../schema/offer-schema`);
 const CommentSchema = require(`../schema/comment-schema`);
 const RouteSchema = require(`../schema/route-schema`);
 
+const {adaptToClient} = require(`../lib/adapt-to-client`);
+
 module.exports = (app, offerService, commentService) => {
   const route = new Router();
   app.use(`/offers`, route);
@@ -77,9 +79,14 @@ module.exports = (app, offerService, commentService) => {
   });
 
   route.post(`/`, offerValidator(OfferSchema), async (req, res) => {
-    const result = await offerService.create(req.body);
+    const offer = await offerService.create(req.body);
+    console.log(offer.id);
+    const adaptedOffer = adaptToClient(await offerService.findOne({offerId: offer.id}));
 
-    res.status(HttpCode.CREATED).json(result);
+    const io = req.app.locals.socketio;
+
+    io.emit(`offer:create`, adaptedOffer);
+    res.status(HttpCode.CREATED).json(offer);
   });
 
   route.put(`/:offerId`, [routeValidator(RouteSchema), offerExists(offerService), offerValidator(OfferSchema)], async (req, res) => {

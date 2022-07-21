@@ -30,9 +30,17 @@ sequelize.sync({force: false});
 
 const app = express();
 
-app.use(helmet());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      connectSrc: [`*`]
+    }
+  }
+}));
+
 
 app.use(session({
   secret: SESSION_SECRET,
