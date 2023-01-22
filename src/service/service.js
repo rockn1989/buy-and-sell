@@ -15,4 +15,6 @@ if (userArguments === 0 || !Cli[commandUser]) {
   process.exit(ExitCode.ERROR);
 }
 
+console.log(DEFAULT_COMMAND);
+
 Cli[commandUser].run(userArguments);
