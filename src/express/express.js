@@ -65,13 +65,11 @@ app.use((req, res) => {
   res.status(HttpCode.NOT_FOUND).render(`errors/404`);
 });
 
-// app.use((error, req, res) => {
-//   res.status(HttpCode.INTERNAL_SERVER_ERROR).render(`errors/500`, {error});
-// });
+app.use((error, req, res) => {
+  res.status(HttpCode.INTERNAL_SERVER_ERROR).render(`errors/500`, {error});
+});
 
 app.set(`views`, path.resolve(__dirname, `templates`));
 app.set(`view engine`, `pug`);
-
-console.log(`error express`);
 
 app.listen(process.env.CLIENT_SIDE_PORT || 8080);
